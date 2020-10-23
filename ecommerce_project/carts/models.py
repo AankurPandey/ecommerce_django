@@ -5,4 +5,4 @@ from django.db import models
 
 # Create your models here.
 class CartModel(models.Model):
-    product_id_list = models.TextField()
+    product_id_list = models.TextField(blank=True, null= True)
