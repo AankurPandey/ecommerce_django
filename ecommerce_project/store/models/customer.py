@@ -14,3 +14,35 @@ class Customer(models.Model):
         except:
             return False
 
+    @classmethod
+    def get_customer_id(cls, email):
+        user = Customer.objects.get(email=email)
+        return user.id
+
+
+    @classmethod
+    def add_customer(cls, obj):
+        obj.save()
+
+    @classmethod
+    def add_product_to_cart(cls, req):
+        item_id = req.POST.get('itemId')
+
+        if req.session.get('cart'):
+            cart = req.session['cart']
+            if cart.get(item_id):
+                cart[item_id] += 1
+            else:
+                cart[item_id] = 1
+        else:
+            cart = {item_id: 1}
+        
+        return cart
+
+    @classmethod
+    def remove_product_from_cart(cls, req):
+        item_id = req.POST.get('itemId')
+        cart = req.session.get('cart')
+        cart[item_id] -= 1
+
+        return cart

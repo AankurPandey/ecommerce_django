@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django.contrib.auth.hashers import \
     make_password, check_password
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models.product import Product
 from .models.category import Category
 from .models.customer import Customer
@@ -10,13 +10,20 @@ from .models.customer import Customer
 
 # Create your views here.
 def index(request):
-    product_list = Product.get_all_products() if not request.GET.get('category') \
-        else Product.get_all_products_by_category(request.GET.get('category'))
-    content = {
-        'productList': product_list,
-        'categories': Category.get_all_categories(),
-    }
-    return render(request, 'orders/index.html', content)
+    if request.method == "GET":
+        product_list = Product.get_all_products() if not request.GET.get('category') \
+            else Product.get_all_products_by_category(request.GET.get('category'))
+        content = {
+            'productList': product_list,
+            'categories': Category.get_all_categories(),
+        }
+        return render(request, 'orders/index.html', content)
+    
+    remove = request.POST.get('remove', 0) 
+    cart = Customer.remove_product_from_cart(request) if remove else Customer.add_product_to_cart(request)
+    
+    request.session['cart'] = cart
+    return redirect(index)
 
 
 def signup(request):
@@ -35,16 +42,20 @@ def signup(request):
 
     if error_msg:
         content = {
-        'error': error_msg,
-        'name': name,
-        'email': email
-    }
+            'error': error_msg,
+            'name': name,
+            'email': email
+        }
         return render(request, 'orders/signup.html', content)
 
     user = Customer(name=name, email=email, password=password)
-    user.save()
-    
-    return render(request, 'orders/index.html')
+    Customer.add_customer(user)
+
+    user_id = Customer.get_customer_id(email)
+
+    if user_id:
+        request.session['customerId'] = user
+        return render(request, 'orders/index.html')
 
 
 def login(request):
@@ -69,9 +80,8 @@ def check_password(request):
     user = Customer.get_customer_by_email(email)
 
     if check_password(password, user.password):
-        request.session['customer_id'] = user.id
-        request.session['customer_email'] =user.email
-        return render(request, 'orders/index.html')
+        request.session['customerId'] = user.id
+        return redirect(index)
 
     error_msg = "Enter the correct Password"
     return render(request, 'orders/password.html', {'error': error_msg, 'email': email})
