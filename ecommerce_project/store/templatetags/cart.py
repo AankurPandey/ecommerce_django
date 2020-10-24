@@ -5,7 +5,8 @@ register = template.Library()
 
 @register.filter(name="in_cart")
 def check_item_in_cart(product_id, cart):
-    return bool(int(cart.get(str(product_id), '0')))
+    quantity = int(cart.get(str(product_id), 0))
+    return quantity > 0
 
 
 @register.filter(name="quantity_in_cart")
@@ -27,3 +28,8 @@ def get_cart_total(product_list, cart):
             amount += product.price * cart[str(product.id)]
 
     return amount
+
+
+@register.filter(name="multiply")
+def get_product(num1, num2):
+    return num1 * num2

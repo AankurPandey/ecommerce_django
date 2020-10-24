@@ -9,16 +9,27 @@ class Customer(models.Model):
     @classmethod
     def get_customer_by_email(cls, email):
         try:
-            user = Customer.objects.get(email=email)
-            return user
+            return Customer.objects.get(email=email)
         except:
             return False
 
+
+    @classmethod
+    def get_customer_by_id(cls, id):
+        try:
+            return Customer.objects.get(pk=id)
+        except:
+            return False
+        
+
+
     @classmethod
     def get_customer_id(cls, email):
-        user = Customer.objects.get(email=email)
-        return user.id
-
+        try:
+            user = Customer.objects.get(email=email)
+            return user.id
+        except:
+            return False
 
     @classmethod
     def add_customer(cls, obj):

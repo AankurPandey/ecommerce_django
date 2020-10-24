@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from .models.product import Product
 from .models.category import Category
 from .models.customer import Customer
-
+from .models.order import Order
 
 # Create your views here.
 def index(request):
@@ -53,9 +53,9 @@ def signup(request):
 
     user_id = Customer.get_customer_id(email)
 
-    if user_id:
-        request.session['customerId'] = user['id']
-        return render(request, 'orders/index.html')
+    request.session['customerId'] = user_id
+    request.session['cart'] = {'1': 0}
+    return render(request, 'orders/index.html')
 
 
 def login(request):
@@ -81,7 +81,7 @@ def password(request):
 
     if check_password(password, user.password):
         request.session['customerId'] = user.id
-        request.session['cart'] = {'1': 1}
+        request.session['cart'] = {'1': 0}
         return redirect(index)
 
     error_msg = "Enter the correct Password"
@@ -93,8 +93,37 @@ def do_logout(request):
     return redirect(index)
 
 
+def get_selected_products(cart):
+    pid_list = [i for i in cart.keys() if cart[i]!=0]
+    product_list = Product.get_products_by_id(pid_list)
+    return product_list 
+
+
 def cart(request):
-    if request.method == "GET":
-        cart = request.session.get('cart')
-        product_list = Product.get_products_by_id(list(cart.keys()))
-        return render(request, 'orders/cart.html', {'productList': product_list}) 
+    cart = request.session.get('cart')
+    product_list = get_selected_products(cart)
+    return render(request, 'orders/cart.html', {'productList': product_list})
+
+    
+def order(request):
+    customer_id =  request.session.get('customerId')
+    cart = request.session.get('cart')
+    product_list = get_selected_products(cart)
+
+    for product in product_list:
+        order = Order(
+                product = product,
+                customer = Customer.get_customer_by_id(customer_id),
+                quantity = cart[str(product.id)],
+                price = product.price,
+            )
+        Order.place_order(order)
+    else:
+        request.session['cart'] = {'1': 0}
+    return redirect(order_view)
+
+
+def order_view(request):
+    customer_id = request.session.get('customerId')
+    order_list = Order.get_order_by_customer(customer_id)
+    return render(request, 'orders/order.html', {'orderList': order_list})
