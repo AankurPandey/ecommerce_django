@@ -54,7 +54,7 @@ def signup(request):
     user_id = Customer.get_customer_id(email)
 
     if user_id:
-        request.session['customerId'] = user
+        request.session['customerId'] = user['id']
         return render(request, 'orders/index.html')
 
 
@@ -70,7 +70,7 @@ def login(request):
     return render(request, 'orders/signup.html', {'email': email})
 
 
-def check_password(request):
+def password(request):
     if request.method == "GET":
         email = request.GET.get('email')
         return render(request, 'orders/password.html', {'email': email})
@@ -81,8 +81,20 @@ def check_password(request):
 
     if check_password(password, user.password):
         request.session['customerId'] = user.id
+        request.session['cart'] = {'1': 1}
         return redirect(index)
 
     error_msg = "Enter the correct Password"
     return render(request, 'orders/password.html', {'error': error_msg, 'email': email})
 
+
+def do_logout(request):
+    request.session.clear()
+    return redirect(index)
+
+
+def cart(request):
+    if request.method == "GET":
+        cart = request.session.get('cart')
+        product_list = Product.get_products_by_id(list(cart.keys()))
+        return render(request, 'orders/cart.html', {'productList': product_list}) 
