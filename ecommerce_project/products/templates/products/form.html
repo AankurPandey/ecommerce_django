@@ -1,8 +1,0 @@
-{% extends "products/base.html" %}
-{%block content %}
-<form action="products/list" method="POST" autocomplete="off">
-    {% csrf_token %}
-    {{form}}
-    <button type="submit" >Add</button>
-</form>
-{% endblock content %}

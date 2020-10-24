@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% load cart %}
+
+{% block content %}
+<div class="container">
+    <div class="border rounded p-4 m-4">
+        <p class="display-4 pl-4 ml-4">Your Orders</p>
+        <hr>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for item in orderList %}
+                <tr>
+                    <td><img style="height: 80px;" class="rounded-circle" src="{{item.product.image.url}}" alt=""></td>
+                    <td>{{item.product.name}}</td>
+                    <td>Rs.{{item.price}}/-</td>
+                    <td>{{item.quantity}}</td>
+                    <td>Rs.{{item.quantity|multiply:item.price}}/-</td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <marquee behavior="" direction="">
+            <h5>The seller will shortly connect with you. If you have any query then call us on +911010101010.</h5>
+        </marquee>
+        </p>
+    </div>
+</div>
+{% endblock %}
