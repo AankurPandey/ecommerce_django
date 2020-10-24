@@ -11,6 +11,6 @@ urlpatterns = [
     url('login/', login),
     url('logout/', do_logout),
     url('cart/', cart),
-    url('create_orders/', auth_middleware(order)),
-    url('orders/', auth_middleware(order_view))
+    url('create_orders/', order),
+    url('orders/', order_view)
 ]
