@@ -14,6 +14,7 @@
                     <th>Product</th>
                     <th>Price</th>
                     <th>Quantity</th>
+                    <th>Date</th>
                     <th>Total</th>
                 </tr>
             </thead>
@@ -25,6 +26,7 @@
                     <td>{{item.product.name}}</td>
                     <td>Rs.{{item.price}}/-</td>
                     <td>{{item.quantity}}</td>
+                    <td>{{item.date}}</td>
                     <td>Rs.{{item.quantity|multiply:item.price}}/-</td>
                 </tr>
 
